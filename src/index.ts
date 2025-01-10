@@ -4,6 +4,7 @@ dotenv.config();
 
 import express from "express";
 import mainRouter from "./routes/main";
+import chatbotRouter from "./routes/chatbot";
 import bodyParser from "body-parser";
 import { startMongoClient, stopMongoClient } from "./utils/mongodb";
 
@@ -11,6 +12,7 @@ const app = express();
 const PORT = 3000;
 
 app.use("/webhooks", bodyParser.json(), mainRouter);
+app.use("/chatbot", bodyParser.json(), chatbotRouter);
 
 const server = app.listen(PORT, async () => {
   try {
