@@ -10,7 +10,6 @@ import {
 } from "./mongo";
 
 export const handleIncomingMessage = async (userMessage: IncomingMessage) => {
-  console.log(userMessage);
   // save or create conversation
   let { takeover, threadId } = await saveMessage(userMessage);
 
@@ -24,7 +23,6 @@ export const handleIncomingMessage = async (userMessage: IncomingMessage) => {
 
     // run assistant
     const assistantResponse = await runAssistant(thread.id);
-    console.log(assistantResponse);
 
     // check if final message and save data
     const finalData = parseFinalMessage(assistantResponse);
