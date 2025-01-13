@@ -3,7 +3,7 @@ export interface UserDataObject {
   name: string;
   email: string;
   account: string;
-  form: string;
+  form: string[];
   recibosConsultas: string[];
   recetas: string[];
   facturasFarmacia: string[];

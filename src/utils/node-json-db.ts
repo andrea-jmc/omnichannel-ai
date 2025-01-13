@@ -14,17 +14,13 @@ export const createUser = async ({ id, ...data }: CreateUserRequest) => {
     ...data,
     facturasFarmacia: [],
     facturasLab: [],
-    form: "",
+    form: [],
     ordenesLab: [],
     recetas: [],
     recibosConsultas: [],
     resultados: [],
   };
   await db.push(`/${id}`, payload);
-};
-
-export const addForm = async ({ id, value }: AddDataRequest) => {
-  await db.push(`/${id}/form`, value, true);
 };
 
 export const addToArray = async (
@@ -52,5 +48,9 @@ export const sendUserData = async (id: string) => {
     ",\n"
   )}\nresultados: ${user.resultados.join("'\n")}`;
 
-  sendMail(text);
+  sendMail(text, id);
+};
+
+export const deleteUserData = async (id: string) => {
+  await db.delete(`/${id}`);
 };

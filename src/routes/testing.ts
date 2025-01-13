@@ -1,10 +1,9 @@
 import { Router } from "express";
 import { deleteThread } from "../handlers/assistant";
-// import { sendMail } from "../utils/nodemailer";
 import {
-  addForm,
   addToArray,
   createUser,
+  deleteUserData,
   sendUserData,
 } from "../utils/node-json-db";
 
@@ -12,8 +11,7 @@ const router = Router();
 
 // delete thread
 router.delete("/", async (req, res) => {
-  const threadId = req.body.threadId;
-  await deleteThread(threadId);
+  await deleteUserData(req.body.id);
   res.send("OK");
 });
 
@@ -23,7 +21,7 @@ router.post("/info-usuario", async (req, res) => {
 });
 
 router.post("/formulario", async (req, res) => {
-  await addForm(req.body);
+  await addToArray(req.body, "form");
   res.send("OK");
 });
 

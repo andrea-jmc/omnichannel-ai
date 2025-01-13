@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { deleteUserData } from "./node-json-db";
 
 const user = process.env.NODEMAILER_USER;
 const pass = process.env.NODEMAILER_PASSWORD;
@@ -14,7 +15,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendMail = (text: string) => {
+export const sendMail = (text: string, id: string) => {
   const mailOptions = {
     from: user,
     to: destination,
@@ -27,6 +28,7 @@ export const sendMail = (text: string) => {
       console.log(error);
     } else {
       console.log("Email sent: " + info.response);
+      deleteUserData(id);
     }
   });
 };

@@ -1,39 +1,60 @@
 import { Router } from "express";
+import {
+  addToArray,
+  createUser,
+  deleteUserData,
+  sendUserData,
+} from "../utils/node-json-db";
 
 const router = Router();
 
+router.delete("/", async (req, res) => {
+  await deleteUserData(req.body.id);
+  res.send("OK");
+});
+
+router.post("/info-usuario", async (req, res) => {
+  await createUser(req.body);
+  res.send("OK");
+});
+
 router.post("/formulario", async (req, res) => {
-  console.log(req.body);
+  await addToArray(req.body, "form");
   res.send("OK");
 });
 
-router.post("/recibo-consulta", async (req, res) => {
-  console.log(req.body);
-  res.send("OK");
-});
-
-router.post("/receta", async (req, res) => {
-  console.log(req.body);
+router.post("/recetas", async (req, res) => {
+  await addToArray(req.body, "recetas");
   res.send("OK");
 });
 
 router.post("/factura-farmacia", async (req, res) => {
-  console.log(req.body);
+  await addToArray(req.body, "facturasFarmacia");
   res.send("OK");
 });
 
-router.post("/orden-lab", async (req, res) => {
-  console.log(req.body);
+router.post("/facturas-lab", async (req, res) => {
+  await addToArray(req.body, "facturasLab");
   res.send("OK");
 });
 
-router.post("/factura-lab", async (req, res) => {
-  console.log(req.body);
+router.post("/ordenes-lab", async (req, res) => {
+  await addToArray(req.body, "ordenesLab");
   res.send("OK");
 });
 
-router.post("/resultado", async (req, res) => {
-  console.log(req.body);
+router.post("/recibos-consulta", async (req, res) => {
+  await addToArray(req.body, "recibosConsultas");
+  res.send("OK");
+});
+
+router.post("/resultados", async (req, res) => {
+  await addToArray(req.body, "resultados");
+  res.send("OK");
+});
+
+router.post("/commit", async (req, res) => {
+  await sendUserData(req.body.id);
   res.send("OK");
 });
 
