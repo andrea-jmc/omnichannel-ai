@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { ConversationMessage } from "../types/schemas";
 const apiKey = process.env.OPENAI_API_KEY;
 const assistantId = process.env.OPENAI_ASSISTANT_ID;
 
@@ -48,4 +49,16 @@ export const getThread = async (threadId: string) => {
     thread = await client.beta.threads.create();
   }
   return thread;
+};
+
+export const stageMultipleMessages = async (
+  thread_id: string,
+  messages: ConversationMessage[]
+) => {
+  messages.forEach(async (message) => {
+    await client.beta.threads.messages.create(thread_id, {
+      content: message.content,
+      role: message.author === "user" ? "user" : "assistant",
+    });
+  });
 };

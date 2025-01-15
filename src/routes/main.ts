@@ -1,6 +1,11 @@
 import { Router } from "express";
 import { IncomingMessage } from "../types/main";
 import { handleIncomingMessage } from "../handlers/main";
+import {
+  handleAgentMessage,
+  handleOutgoingMessages,
+  handleTakeover,
+} from "../handlers/mongo";
 
 const router = Router();
 
@@ -31,6 +36,32 @@ router.post("/", async (req, res) => {
 
     await handleIncomingMessage(incomingMessage);
   }
+  res.send("OK");
+});
+
+router.get("/dashboard", async (_, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  const result = await handleOutgoingMessages();
+  res.status(200).json({ chats: result });
+});
+
+router.post("/dashboard", async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  await handleAgentMessage(req.body);
+  res.send("OK");
+});
+
+router.post("/takeover", async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  await handleTakeover(req.body);
   res.send("OK");
 });
 

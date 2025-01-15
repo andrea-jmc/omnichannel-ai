@@ -24,3 +24,23 @@ export interface User {
   phone: string;
   email: string;
 }
+
+export interface OutgoingChat {
+  chat_id: string;
+  userId: string;
+  takeover: boolean;
+  messages: ConversationMessage[];
+  lastMessage: string;
+}
+
+export interface AgentMessage {
+  chat_id: string;
+  content: string;
+  userId: string;
+}
+
+export interface TakeoverRequest {
+  takeover: boolean;
+  chat_id: string;
+  userId: string;
+}

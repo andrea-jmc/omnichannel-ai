@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
+import cors from "cors";
 import mainRouter from "./routes/main";
 import bodyParser from "body-parser";
 import { startMongoClient, stopMongoClient } from "./utils/mongodb";
@@ -10,6 +11,7 @@ import { startMongoClient, stopMongoClient } from "./utils/mongodb";
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use("/webhooks", bodyParser.json(), mainRouter);
 
 const server = app.listen(PORT, async () => {

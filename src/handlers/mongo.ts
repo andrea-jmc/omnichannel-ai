@@ -1,7 +1,15 @@
 import { Collection, ObjectId } from "mongodb";
 import { IncomingMessage, SaveMessageResponse } from "../types/main";
-import { getMongoClientInstance } from "../utils/mongodb";
-import { Conversation, User } from "../types/schemas";
+import { formatChatData, getMongoClientInstance } from "../utils/mongodb";
+import {
+  AgentMessage,
+  Conversation,
+  TakeoverRequest,
+  User,
+} from "../types/schemas";
+import { sendWhatsappMessage } from "../utils/whatsapp";
+import { runAssistant, stageMultipleMessages } from "./assistant";
+import { parseFinalMessage } from "../utils/assistant";
 
 // returns the current value of takeover
 export const saveMessage = async (
@@ -73,7 +81,7 @@ export const saveAssistantMessage = async (
       $push: {
         messages: {
           timestamp: Math.floor(new Date().getTime() / 1000).toString(),
-          author: "assistant",
+          author: takeover ? "agent" : "assistant",
           content: message,
           takeover: takeover,
         },
@@ -104,4 +112,84 @@ export const saveUser = async (data: User) => {
     .collection("Users");
 
   await collection.insertOne(data);
+};
+
+export const handleOutgoingMessages = async () => {
+  const mongoClient = getMongoClientInstance();
+  const collection: Collection<Conversation> = mongoClient
+    .db("local")
+    .collection("WA");
+  const data = collection.find({});
+  const result = formatChatData(data);
+  return result;
+};
+
+export const handleAgentMessage = async ({
+  chat_id,
+  content,
+  userId,
+}: AgentMessage) => {
+  const mongoClient = getMongoClientInstance();
+  const collection: Collection<Conversation> = mongoClient
+    .db("local")
+    .collection("WA");
+
+  await Promise.all([
+    saveAssistantMessage(chat_id, content, true),
+    sendWhatsappMessage(content, userId),
+  ]);
+};
+
+export const handleTakeover = async ({
+  takeover,
+  chat_id,
+  userId,
+}: TakeoverRequest) => {
+  const mongoClient = getMongoClientInstance();
+  const collection: Collection<Conversation> = mongoClient
+    .db("local")
+    .collection("WA");
+  if (takeover) {
+    collection.updateOne(
+      { chat_id },
+      { $set: { updated_at: new Date(), takeover } }
+    );
+  } else {
+    // get all takeover messages and thread_id
+    const conversation = await collection.findOne(
+      {
+        chat_id,
+      },
+      { projection: { messages: 1, thread_id: 1 } }
+    );
+    if (conversation) {
+      const takeoverMessages = conversation.messages.filter(
+        (message) => message.takeover
+      );
+      // update all takeover messages and convo
+      await collection.updateOne(
+        { chat_id },
+        {
+          $set: {
+            takeover: false,
+            "messages.$[].takeover": false,
+          },
+        }
+      );
+      // send to assistant
+      await stageMultipleMessages(conversation.thread_id, takeoverMessages);
+      const assistantResponse = await runAssistant(conversation.thread_id);
+      // check if final message and save data
+      const finalData = parseFinalMessage(assistantResponse);
+      if (finalData) {
+        await saveUser(finalData);
+      }
+
+      // reply to user and save message
+      await Promise.all([
+        saveAssistantMessage(chat_id, assistantResponse, false),
+        sendWhatsappMessage(assistantResponse, userId),
+      ]);
+    }
+  }
 };
