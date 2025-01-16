@@ -14,7 +14,8 @@ import { parseFinalMessage } from "../utils/assistant";
 
 // returns the current value of takeover
 export const saveMessage = async (
-  message: IncomingMessage
+  message: IncomingMessage,
+  imageObject?: Buffer<ArrayBuffer>
 ): Promise<SaveMessageResponse> => {
   const mongoClient = getMongoClientInstance();
   const collection: Collection<Conversation> = mongoClient
@@ -35,6 +36,7 @@ export const saveMessage = async (
             author: "user",
             content: message.content,
             takeover: conversation.takeover,
+            image: imageObject,
           },
         },
         $set: { updated_at: new Date() },
@@ -54,6 +56,7 @@ export const saveMessage = async (
           content: message.content,
           takeover: false,
           timestamp: message.timestamp,
+          image: imageObject,
         },
       ],
       takeover: false,

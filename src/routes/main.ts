@@ -25,16 +25,25 @@ router.get("/", (req, res) => {
 router.post("/", async (req, res) => {
   // When bot replies endpoint is called with messages = undefined
   if (req.body.entry[0].changes[0].value.messages) {
-    // create user message object
-    const incomingMessage: IncomingMessage = {
-      chatId: req.body.entry[0].id,
-      from: req.body.entry[0].changes[0].value.messages[0].from,
-      messageId: req.body.entry[0].changes[0].value.messages[0].id,
-      timestamp: req.body.entry[0].changes[0].value.messages[0].timestamp,
-      content: req.body.entry[0].changes[0].value.messages[0].text.body,
-    };
-
-    await handleIncomingMessage(incomingMessage);
+    const messageType = req.body.entry[0].changes[0].value.messages[0].type;
+    if (messageType === "text" || messageType === "image") {
+      // create user message object
+      const incomingMessage: IncomingMessage = {
+        chatId: req.body.entry[0].id,
+        from: req.body.entry[0].changes[0].value.messages[0].from,
+        messageId: req.body.entry[0].changes[0].value.messages[0].id,
+        timestamp: req.body.entry[0].changes[0].value.messages[0].timestamp,
+        content:
+          messageType === "image"
+            ? req.body.entry[0].changes[0].value.messages[0].image.caption ?? ""
+            : req.body.entry[0].changes[0].value.messages[0].text.body,
+        imageId:
+          messageType === "image"
+            ? req.body.entry[0].changes[0].value.messages[0].image.id
+            : null,
+      };
+      await handleIncomingMessage(incomingMessage);
+    }
   }
   res.send("OK");
 });

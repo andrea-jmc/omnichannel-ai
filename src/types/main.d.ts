@@ -4,6 +4,7 @@ export interface IncomingMessage {
   messageId: string;
   timestamp: string;
   content: string;
+  imageId: string | null;
 }
 
 export interface SaveMessageResponse {

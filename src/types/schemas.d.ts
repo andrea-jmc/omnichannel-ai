@@ -13,6 +13,7 @@ export interface ConversationMessage {
   timestamp: string;
   author: "user" | "assistant" | "agent";
   content: string;
+  image?: unknown;
   takeover: boolean;
 }
 
