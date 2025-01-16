@@ -1,5 +1,3 @@
-import { ObjectId } from "mongodb";
-
 export interface Conversation {
   chat_id: string;
   thread_id: string;

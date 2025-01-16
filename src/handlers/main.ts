@@ -3,6 +3,7 @@ import { parseFinalMessage } from "../utils/assistant";
 import { sendWhatsappMessage } from "../utils/whatsapp";
 import { stageAssistantPayload, getThread, runAssistant } from "./assistant";
 import {
+  getLatestStagedMessage,
   saveAssistantMessage,
   saveMessage,
   saveUser,
@@ -11,29 +12,39 @@ import {
 
 export const handleIncomingMessage = async (userMessage: IncomingMessage) => {
   // save or create conversation
-  let { takeover, threadId } = await saveMessage(userMessage);
+  const { takeover, threadId } = await saveMessage(userMessage);
 
   if (!takeover) {
     // get or create thread. if new thread, update conversation to have thread_id
     const thread = await getThread(threadId);
-    if (!threadId) await updateThreadId(userMessage.chatId, thread.id);
+    if (!threadId) await updateThreadId(userMessage.from, thread.id);
 
     // generate message to assistant, version 2: generate array of messages since takeover.
     await stageAssistantPayload(userMessage.content, thread);
 
-    // run assistant
-    const assistantResponse = await runAssistant(thread.id);
+    setTimeout(async () => {
+      // check if latest message
+      const latestMessage = await getLatestStagedMessage(userMessage.from);
 
-    // check if final message and save data
-    const finalData = parseFinalMessage(assistantResponse);
-    if (finalData) {
-      await saveUser(finalData);
-    }
+      if (
+        latestMessage.timestamp === userMessage.timestamp &&
+        latestMessage.content === userMessage.content
+      ) {
+        // run assistant
+        const assistantResponse = await runAssistant(thread.id);
 
-    // reply to user and save message
-    await Promise.all([
-      saveAssistantMessage(userMessage.chatId, assistantResponse, false),
-      sendWhatsappMessage(assistantResponse, userMessage.from),
-    ]);
+        // check if final message and save data
+        const finalData = parseFinalMessage(assistantResponse);
+        if (finalData) {
+          await saveUser(finalData);
+        }
+
+        // reply to user and save message
+        await Promise.all([
+          saveAssistantMessage(userMessage.from, assistantResponse, false),
+          sendWhatsappMessage(assistantResponse, userMessage.from),
+        ]);
+      }
+    }, 8000);
   }
 };

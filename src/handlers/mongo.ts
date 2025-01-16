@@ -1,9 +1,10 @@
-import { Collection, ObjectId } from "mongodb";
+import { Collection } from "mongodb";
 import { IncomingMessage, SaveMessageResponse } from "../types/main";
 import { formatChatData, getMongoClientInstance } from "../utils/mongodb";
 import {
   AgentMessage,
   Conversation,
+  ConversationMessage,
   TakeoverRequest,
   User,
 } from "../types/schemas";
@@ -20,13 +21,13 @@ export const saveMessage = async (
     .db("local")
     .collection("WA");
   const conversation = await collection.findOne(
-    { chat_id: message.chatId },
-    { projection: { chat_id: 1, takeover: 1, thread_id: 1 } }
+    { user_id: message.from },
+    { projection: { user_id: 1, takeover: 1, thread_id: 1 } }
   );
 
   if (conversation) {
     await collection.updateOne(
-      { chat_id: message.chatId },
+      { user_id: message.from },
       {
         $push: {
           messages: {
@@ -65,8 +66,9 @@ export const saveMessage = async (
   }
 };
 
+// saves the agent/assistant response
 export const saveAssistantMessage = async (
-  chatId: string,
+  user_id: string,
   message: string,
   takeover: boolean
 ) => {
@@ -76,7 +78,7 @@ export const saveAssistantMessage = async (
     .collection("WA");
 
   await collection.updateOne(
-    { chat_id: chatId },
+    { user_id },
     {
       $push: {
         messages: {
@@ -91,14 +93,15 @@ export const saveAssistantMessage = async (
   );
 };
 
-export const updateThreadId = async (chatId: string, threadId: string) => {
+// asigns an assistant thread to the chat
+export const updateThreadId = async (user_id: string, threadId: string) => {
   const mongoClient = getMongoClientInstance();
   const collection: Collection<Conversation> = mongoClient
     .db("local")
     .collection("WA");
 
   await collection.updateOne(
-    { chat_id: chatId },
+    { user_id },
     {
       $set: { thread_id: threadId, updated_at: new Date() },
     }
@@ -114,6 +117,7 @@ export const saveUser = async (data: User) => {
   await collection.insertOne(data);
 };
 
+// gets all conversations
 export const handleOutgoingMessages = async () => {
   const mongoClient = getMongoClientInstance();
   const collection: Collection<Conversation> = mongoClient
@@ -124,41 +128,28 @@ export const handleOutgoingMessages = async () => {
   return result;
 };
 
-export const handleAgentMessage = async ({
-  chat_id,
-  content,
-  userId,
-}: AgentMessage) => {
-  const mongoClient = getMongoClientInstance();
-  const collection: Collection<Conversation> = mongoClient
-    .db("local")
-    .collection("WA");
-
+export const handleAgentMessage = async ({ userId, content }: AgentMessage) => {
   await Promise.all([
-    saveAssistantMessage(chat_id, content, true),
+    saveAssistantMessage(userId, content, true),
     sendWhatsappMessage(content, userId),
   ]);
 };
 
-export const handleTakeover = async ({
-  takeover,
-  chat_id,
-  userId,
-}: TakeoverRequest) => {
+export const handleTakeover = async ({ takeover, userId }: TakeoverRequest) => {
   const mongoClient = getMongoClientInstance();
   const collection: Collection<Conversation> = mongoClient
     .db("local")
     .collection("WA");
   if (takeover) {
     collection.updateOne(
-      { chat_id },
+      { user_id: userId },
       { $set: { updated_at: new Date(), takeover } }
     );
   } else {
     // get all takeover messages and thread_id
     const conversation = await collection.findOne(
       {
-        chat_id,
+        user_id: userId,
       },
       { projection: { messages: 1, thread_id: 1 } }
     );
@@ -168,7 +159,7 @@ export const handleTakeover = async ({
       );
       // update all takeover messages and convo
       await collection.updateOne(
-        { chat_id },
+        { user_id: userId },
         {
           $set: {
             takeover: false,
@@ -187,9 +178,27 @@ export const handleTakeover = async ({
 
       // reply to user and save message
       await Promise.all([
-        saveAssistantMessage(chat_id, assistantResponse, false),
+        saveAssistantMessage(userId, assistantResponse, false),
         sendWhatsappMessage(assistantResponse, userId),
       ]);
     }
   }
+};
+
+export const getLatestStagedMessage = async (
+  user_id: string
+): Promise<ConversationMessage> => {
+  const mongoClient = getMongoClientInstance();
+  const collection: Collection<Conversation> = mongoClient
+    .db("local")
+    .collection("WA");
+
+  const chat = await collection.findOne(
+    { user_id },
+    { projection: { messages: 1 } }
+  );
+  if (chat) {
+    return chat.messages[chat.messages.length - 1];
+  }
+  return { author: "user", content: "", takeover: false, timestamp: "" };
 };
