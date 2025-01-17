@@ -3,6 +3,7 @@ import { IncomingMessage } from "../types/main";
 import { handleIncomingMessage } from "../handlers/main";
 import {
   handleAgentMessage,
+  handleClose,
   handleOutgoingMessages,
   handleTakeover,
 } from "../handlers/mongo";
@@ -71,6 +72,16 @@ router.post("/takeover", async (req, res) => {
     "Origin, X-Requested-With, Content-Type, Accept"
   );
   await handleTakeover(req.body);
+  res.send("OK");
+});
+
+router.post("/closed", async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  await handleClose(req.body);
   res.send("OK");
 });
 

@@ -39,7 +39,7 @@ export const saveMessage = async (
             image: imageObject,
           },
         },
-        $set: { updated_at: new Date() },
+        $set: { updated_at: new Date(), closed: false },
       }
     );
     return {
@@ -60,6 +60,7 @@ export const saveMessage = async (
         },
       ],
       takeover: false,
+      closed: false,
       thread_id: "",
       user_id: message.from,
       created_at: new Date(),
@@ -144,7 +145,7 @@ export const handleTakeover = async ({ takeover, userId }: TakeoverRequest) => {
     .db("local")
     .collection("WA");
   if (takeover) {
-    collection.updateOne(
+    await collection.updateOne(
       { user_id: userId },
       { $set: { updated_at: new Date(), takeover } }
     );
@@ -204,4 +205,15 @@ export const getLatestStagedMessage = async (
     return chat.messages[chat.messages.length - 1];
   }
   return { author: "user", content: "", takeover: false, timestamp: "" };
+};
+
+export const handleClose = async ({ userId }: { userId: string }) => {
+  const mongoClient = getMongoClientInstance();
+  const collection: Collection<Conversation> = mongoClient
+    .db("local")
+    .collection("WA");
+  await collection.updateOne(
+    { user_id: userId },
+    { $set: { updated_at: new Date(), close: true, thread_id: "" } }
+  );
 };
