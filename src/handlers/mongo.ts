@@ -1,13 +1,13 @@
 import { Collection } from "mongodb";
-import { IncomingMessage, SaveMessageResponse } from "../types/main";
-import { formatChatData, getMongoClientInstance } from "../utils/mongodb";
 import {
   AgentMessage,
-  Conversation,
-  ConversationMessage,
+  CloseRequest,
+  IncomingMessage,
+  SaveMessageResponse,
   TakeoverRequest,
-  User,
-} from "../types/schemas";
+} from "../types/main";
+import { formatChatData, getMongoClientInstance } from "../utils/mongodb";
+import { Conversation, ConversationMessage, User } from "../types/schemas";
 import { sendWhatsappMessage } from "../utils/whatsapp";
 import { runAssistant, stageMultipleMessages } from "./assistant";
 import { parseFinalMessage } from "../utils/assistant";
@@ -15,7 +15,7 @@ import { parseFinalMessage } from "../utils/assistant";
 // returns the current value of takeover
 export const saveMessage = async (
   message: IncomingMessage,
-  imageObject?: Buffer<ArrayBuffer>
+  media: string
 ): Promise<SaveMessageResponse> => {
   const mongoClient = getMongoClientInstance();
   const collection: Collection<Conversation> = mongoClient
@@ -36,10 +36,10 @@ export const saveMessage = async (
             author: "user",
             content: message.content,
             takeover: conversation.takeover,
-            image: imageObject,
+            media,
           },
         },
-        $set: { updated_at: new Date(), closed: false },
+        $set: { updated_at: new Date() },
       }
     );
     return {
@@ -56,11 +56,10 @@ export const saveMessage = async (
           content: message.content,
           takeover: false,
           timestamp: message.timestamp,
-          image: imageObject,
+          media,
         },
       ],
       takeover: false,
-      closed: false,
       thread_id: "",
       user_id: message.from,
       created_at: new Date(),
@@ -207,7 +206,7 @@ export const getLatestStagedMessage = async (
   return { author: "user", content: "", takeover: false, timestamp: "" };
 };
 
-export const handleClose = async ({ userId }: { userId: string }) => {
+export const handleClose = async ({ userId }: CloseRequest) => {
   const mongoClient = getMongoClientInstance();
   const collection: Collection<Conversation> = mongoClient
     .db("local")

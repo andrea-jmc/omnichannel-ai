@@ -5,6 +5,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import mainRouter from "./routes/main";
+import dashboardRouter from "./routes/dashboard";
 import bodyParser from "body-parser";
 import { startMongoClient, stopMongoClient } from "./utils/mongodb";
 
@@ -13,6 +14,7 @@ const PORT = 3000;
 
 app.use(cors());
 app.use("/webhooks", bodyParser.json(), mainRouter);
+app.use("/dashboard", bodyParser.json(), dashboardRouter);
 
 const server = app.listen(PORT, async () => {
   try {

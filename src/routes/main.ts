@@ -1,12 +1,6 @@
 import { Router } from "express";
 import { IncomingMessage } from "../types/main";
 import { handleIncomingMessage } from "../handlers/main";
-import {
-  handleAgentMessage,
-  handleClose,
-  handleOutgoingMessages,
-  handleTakeover,
-} from "../handlers/mongo";
 
 const router = Router();
 
@@ -27,61 +21,35 @@ router.post("/", async (req, res) => {
   // When bot replies endpoint is called with messages = undefined
   if (req.body.entry[0].changes[0].value.messages) {
     const messageType = req.body.entry[0].changes[0].value.messages[0].type;
-    if (messageType === "text" || messageType === "image") {
-      // create user message object
-      const incomingMessage: IncomingMessage = {
-        chatId: req.body.entry[0].id,
-        from: req.body.entry[0].changes[0].value.messages[0].from,
-        messageId: req.body.entry[0].changes[0].value.messages[0].id,
-        timestamp: req.body.entry[0].changes[0].value.messages[0].timestamp,
-        content:
-          messageType === "image"
-            ? req.body.entry[0].changes[0].value.messages[0].image.caption ?? ""
-            : req.body.entry[0].changes[0].value.messages[0].text.body,
-        imageId:
-          messageType === "image"
-            ? req.body.entry[0].changes[0].value.messages[0].image.id
-            : null,
-      };
-      await handleIncomingMessage(incomingMessage);
+    let mediaId = null;
+    let content = "";
+    switch (messageType) {
+      case "image":
+        mediaId = req.body.entry[0].changes[0].value.messages[0].image.id;
+        content =
+          req.body.entry[0].changes[0].value.messages[0].image.caption ?? "";
+        break;
+      case "document":
+        mediaId = req.body.entry[0].changes[0].value.messages[0].document.id;
+        content =
+          req.body.entry[0].changes[0].value.messages[0].document.caption ?? "";
+        break;
+      case "text":
+        content = req.body.entry[0].changes[0].value.messages[0].text.body;
+        break;
+      default:
     }
+    // create user message object
+    const incomingMessage: IncomingMessage = {
+      chatId: req.body.entry[0].id,
+      from: req.body.entry[0].changes[0].value.messages[0].from,
+      messageId: req.body.entry[0].changes[0].value.messages[0].id,
+      timestamp: req.body.entry[0].changes[0].value.messages[0].timestamp,
+      content,
+      mediaId,
+    };
+    handleIncomingMessage(incomingMessage);
   }
-  res.send("OK");
-});
-
-router.get("/dashboard", async (_, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  const result = await handleOutgoingMessages();
-  res.status(200).json({ chats: result });
-});
-
-router.post("/dashboard", async (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  await handleAgentMessage(req.body);
-  res.send("OK");
-});
-
-router.post("/takeover", async (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  await handleTakeover(req.body);
-  res.send("OK");
-});
-
-router.post("/closed", async (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  await handleClose(req.body);
   res.send("OK");
 });
 

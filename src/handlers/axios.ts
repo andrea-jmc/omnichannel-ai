@@ -3,18 +3,20 @@ import axios from "axios";
 const version = process.env.VERSION;
 const authorization = process.env.AUTHORIZATION;
 
-export const getImageUrl = async (mediaId: string) => {
-  const response = await axios.get<{ url: string }>(
+export const getMediaUrl = async (mediaId: string) => {
+  const response = await axios.get<{ url: string; mime_type: string }>(
     `https://graph.facebook.com/${version}/${mediaId}/`,
-    { headers: { Authorization: `Bearer ${authorization}` } }
+    {
+      headers: { Authorization: `Bearer ${authorization}` },
+    }
   );
-  return response.data.url;
+  return { url: response.data.url, mime_type: response.data.mime_type };
 };
 
 export const downloadMedia = async (url: string) => {
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${authorization}` },
+    responseType: "stream",
   });
-  const buffer = Buffer.from(response.data);
-  return Buffer.concat([buffer]);
+  return response.data;
 };

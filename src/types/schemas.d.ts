@@ -3,7 +3,6 @@ export interface Conversation {
   thread_id: string;
   user_id: string;
   takeover: boolean;
-  closed: boolean;
   assigned_agent_id: string | null;
   messages: ConversationMessage[];
   created_at: Date;
@@ -14,7 +13,7 @@ export interface ConversationMessage {
   timestamp: string;
   author: "user" | "assistant" | "agent";
   content: string;
-  image?: unknown;
+  media?: string;
   takeover: boolean;
 }
 
@@ -29,23 +28,6 @@ export interface OutgoingChat {
   chat_id: string;
   userId: string;
   takeover: boolean;
-  closed: boolean;
   messages: ConversationMessage[];
   lastMessage: string;
-}
-
-export interface AgentMessage {
-  chat_id: string;
-  content: string;
-  userId: string;
-}
-
-export interface TakeoverRequest {
-  takeover: boolean;
-  userId: string;
-}
-
-export interface ClosedRequest {
-  closed: boolean;
-  userId: string;
 }

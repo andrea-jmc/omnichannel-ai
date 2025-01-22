@@ -26,7 +26,6 @@ export const formatChatData = async (
       chat_id: item.chat_id,
       userId: item.user_id,
       takeover: item.takeover,
-      closed: item.closed,
       messages: item.messages,
       lastMessage:
         item.messages.length > 0
