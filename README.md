@@ -287,7 +287,7 @@ Guarda el archivo en S3 y retorna el url de AWS
 
 `(ArrayBuffer) => Promise<string[]>`
 
-Recibe el ArrayBuffer de un pdf lo convierte a imágenes y retorna una lista de ArrayBuffer de imágenes
+Recibe el ArrayBuffer de un pdf, lo convierte a imágenes y retorna una lista de ArrayBuffer de imágenes
 
 ### getPdfImageUrls
 
