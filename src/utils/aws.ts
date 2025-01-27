@@ -28,5 +28,7 @@ export async function uploadMedia(data: {
     data.Key
   )}` as const;
 
+  console.log(url);
+
   return url;
 }

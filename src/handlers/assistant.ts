@@ -15,29 +15,31 @@ export const stageAssistantPayload = async (
     _request_id?: string | null;
   },
   media: string,
-  imageArray: string[]
+  pdfImages: string[]
 ) => {
   if (media) {
     // add message text
     const content: OpenAI.Beta.Threads.Messages.MessageContentPartParam[] = [];
     if (messageContent) content.push({ type: "text", text: messageContent });
 
-    // add pdf images
-    const mediaContent =
-      imageArray.map<OpenAI.Beta.Threads.Messages.MessageContentPartParam>(
-        (url) => ({ type: "image_url", image_url: { url, detail: "auto" } })
-      );
-
-    // or add image
-    if (mediaContent.length === 0)
-      mediaContent.push({
+    if (pdfImages.length > 0)
+      //add pdf pages
+      pdfImages.forEach((pageUrl) => {
+        content.push({
+          type: "image_url",
+          image_url: { url: pageUrl, detail: "auto" },
+        });
+      });
+    // add image
+    else
+      content.push({
         type: "image_url",
         image_url: { url: media, detail: "auto" },
       });
 
     // stage message
     await client.beta.threads.messages.create(thread.id, {
-      content: [...content, ...mediaContent],
+      content,
       role: "user",
     });
   } else {

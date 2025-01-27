@@ -81,7 +81,7 @@ Funciones llamadas desde handleIncomingMessage:
 - [saveAssistantMessage](#saveassistantmessage)
 - [sendWhatsappMessage](#sendwhatsappmessage)
 
-### `handleMedia: (string) => Promise<{url: string, urlArray: string[]}>` {#handlemedia}
+### `handleMedia: (string) => Promise<{url: string, pdfUrls: string[]}>` {#handlemedia}
 
 Se encarga de guardar imágenes o pdfs de whatsapp en S3. Un mensaje de whatsapp con media de cualquier tipo envía un id. Este ID se envía al endpoint de media de meta. Este endpoint retorna un url. Este url se usa para descargar el archivo en la forma de un string codificado. Si el archivo original es un pdf, se convierte en un arreglo de imágenes en la forma de strings codificados. Luego todos los strings codificados se suben a S3 y la función retorna todos los urls de S3. Solo el url del archivo original se guarda en el chat  
 Funciones llamadas desde handleMeda:
@@ -170,9 +170,9 @@ Funciones llamadas desde handleClose:
 
 Retorna el url de descarga y el tipo de un archivo subido por whatsapp
 
-### `downloadMedia: (string) => Promise<any>` {#downloadmedia}
+### `downloadMedia: (string) => Promise<ArrayBuffer>` {#downloadmedia}
 
-Retorna el string codificado en base64 del archivo
+Retorna el archivo original
 
 ## assistant.ts
 
@@ -230,7 +230,7 @@ Busca palabras clave en el mensaje del asistente para determinar si este es el �
 
 Guarda el archivo en S3 y retorna el url de AWS
 
-## pdf-img-convert.ts
+## pdf-to-image.ts
 
 ### `pdfToImage: (string) => Promise<string[]>` {#pdftoimage}
 

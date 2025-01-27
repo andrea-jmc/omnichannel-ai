@@ -16,7 +16,7 @@ export const getMediaUrl = async (mediaId: string) => {
 export const downloadMedia = async (url: string) => {
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${authorization}` },
-    responseType: "stream",
+    responseType: "arraybuffer",
   });
   return response.data;
 };

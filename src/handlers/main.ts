@@ -1,7 +1,7 @@
 import { IncomingMessage } from "../types/main";
 import { parseFinalMessage } from "../utils/assistant";
 import { uploadMedia } from "../utils/aws";
-import { pdfToImgage } from "../utils/pdf-img-convert";
+import { pdfToImgage } from "../utils/pdf-to-image";
 import { sendWhatsappMessage } from "../utils/whatsapp";
 import { stageAssistantPayload, getThread, runAssistant } from "./assistant";
 import { downloadMedia, getMediaUrl } from "./axios";
@@ -16,12 +16,12 @@ import {
 export const handleIncomingMessage = async (userMessage: IncomingMessage) => {
   // check if media message
   let media = "";
-  let imageArray: string[] = [];
+  let pdfImages: string[] = [];
   if (userMessage.mediaId) {
     try {
-      const { url, urlArray } = await handleMedia(userMessage.mediaId);
+      const { url, pdfUrls } = await handleMedia(userMessage.mediaId);
       media = url;
-      imageArray = [...urlArray];
+      pdfImages = pdfUrls;
     } catch (error) {
       console.error(error);
     }
@@ -35,7 +35,7 @@ export const handleIncomingMessage = async (userMessage: IncomingMessage) => {
     if (!threadId) await updateThreadId(userMessage.from, thread.id);
 
     // generate message to assistant, version 2: generate array of messages since takeover.
-    await stageAssistantPayload(userMessage.content, thread, media, imageArray);
+    await stageAssistantPayload(userMessage.content, thread, media, pdfImages);
 
     setTimeout(async () => {
       // check if latest message
@@ -66,7 +66,7 @@ export const handleIncomingMessage = async (userMessage: IncomingMessage) => {
 
 export const handleMedia = async (
   mediaId: string
-): Promise<{ url: string; urlArray: string[] }> => {
+): Promise<{ url: string; pdfUrls: string[] }> => {
   // get downloadUrl
   const { url: whatsappUrl, mime_type } = await getMediaUrl(mediaId);
 
@@ -87,24 +87,24 @@ export const handleMedia = async (
     default:
       extension = ".txt";
   }
-  const imageObject = await downloadMedia(whatsappUrl);
-  const urls: string[] = [];
-  if (extension === "pdf") {
-    // array of images
-    const imageObjects = await pdfToImgage(imageObject);
-    imageObjects.forEach(async (element, index) => {
+  const mediaFile = await downloadMedia(whatsappUrl);
+  const pdfUrls: string[] = [];
+  if (extension === ".pdf") {
+    // convert to image
+    const pdfImages = await pdfToImgage(mediaFile);
+    pdfImages.forEach(async (page, index) => {
       const imageUrl = await uploadMedia({
-        Key: "Omnichat/" + mediaId + `-${index}` + extension,
-        Body: element,
+        Key: "Omnichat/" + mediaId + "-" + index + ".png",
+        Body: page,
         ContentType: "image/png",
       });
-      urls.push(imageUrl);
+      pdfUrls.push(imageUrl);
     });
   }
   const url = await uploadMedia({
     Key: "Omnichat/" + mediaId + extension,
-    Body: imageObject,
+    Body: mediaFile,
     ContentType: mime_type,
   });
-  return { url, urlArray: urls };
+  return { url, pdfUrls };
 };
