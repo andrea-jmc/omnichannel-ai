@@ -1,7 +1,7 @@
 import { IncomingMessage } from "../types/main";
 import { parseFinalMessage } from "../utils/assistant";
 import { uploadMedia } from "../utils/aws";
-import { pdfToImgage } from "../utils/pdf-to-image";
+import { pdfToImgage } from "../utils/pdf";
 import { sendWhatsappMessage } from "../utils/whatsapp";
 import { stageAssistantPayload, getThread, runAssistant } from "./assistant";
 import { downloadMedia, getMediaUrl } from "./axios";

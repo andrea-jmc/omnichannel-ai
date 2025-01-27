@@ -49,3 +49,15 @@ export const pdfToImgage = async (encodedPdf: ArrayBuffer) => {
 
   return images;
 };
+
+export const getPdfImageUrls = async (originalUrl: string) => {
+  const document = await pdfjs.getDocument(originalUrl).promise;
+
+  const imageUrls: string[] = [];
+
+  for (let i = 0; i < document.numPages; i++) {
+    imageUrls.push(originalUrl.replace(".pdf", `-${i}.png`));
+  }
+
+  return imageUrls;
+};

@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { ConversationMessage } from "../types/schemas";
+import { getPdfImageUrls } from "../utils/pdf";
 const apiKey = process.env.OPENAI_API_KEY;
 const assistantId = process.env.OPENAI_ASSISTANT_ID;
 
@@ -86,9 +87,42 @@ export const stageMultipleMessages = async (
   messages: ConversationMessage[]
 ) => {
   messages.forEach(async (message) => {
-    await client.beta.threads.messages.create(thread_id, {
-      content: message.content,
-      role: message.author === "user" ? "user" : "assistant",
-    });
+    if (message.media) {
+      // create a message with media
+      const mediaContent: OpenAI.Beta.Threads.Messages.MessageContentPartParam[] =
+        [];
+
+      // media has a caption
+      if (message.content)
+        mediaContent.push({ type: "text", text: message.content });
+
+      // media is a pdf
+      if (message.media.includes(".pdf")) {
+        const urlList = await getPdfImageUrls(message.media);
+
+        // add all pages to message
+        urlList.forEach((url) => {
+          mediaContent.push({
+            type: "image_url",
+            image_url: { url, detail: "auto" },
+          });
+        });
+      } else {
+        // media is an image
+        mediaContent.push({
+          type: "image_url",
+          image_url: { url: message.media, detail: "auto" },
+        });
+      }
+      await client.beta.threads.messages.create(thread_id, {
+        content: mediaContent,
+        role: message.author === "user" ? "user" : "assistant",
+      });
+    } else {
+      await client.beta.threads.messages.create(thread_id, {
+        content: message.content,
+        role: message.author === "user" ? "user" : "assistant",
+      });
+    }
   });
 };
