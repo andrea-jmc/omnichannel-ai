@@ -62,7 +62,9 @@ Cambia el estado de la conversación a closed y elimina el threadId del chat en 
 
 ## main.ts
 
-### `handleIncomingMessage: (IncomingMessage) => Promise<void>` {#handleincomingmessage}
+### handleIncomingMessage
+
+`(IncomingMessage) => Promise<void>`
 
 Controla el flujo completo cuando el usuario envía un mensaje. Primero revisa si el mensaje incluye media (imagen o pdf). Si la incluye, la descarga del servidor de whatsapp y la sube a AWS. Luego guarda el contenido del mensaje en mongodb, revisa si existe un thread (conversación con asistente IA) conectado al chat. Si no existe crea uno. Luego, se agrega el mensaje al thread.  
 Esta función usa setTimeout donde se revisa si el llamado actual a la función es el más reciente. El llamado más reciente envía todos los mensajes del thread al asistente al mismo tiempo, guarda la respuesta en mongodb y manda el mensaje al usuario. También revisa si es el mensaje final para guardar la data proporcionada por el usuario
@@ -81,7 +83,9 @@ Funciones llamadas desde handleIncomingMessage:
 - [saveAssistantMessage](#saveassistantmessage)
 - [sendWhatsappMessage](#sendwhatsappmessage)
 
-### `handleMedia: (string) => Promise<{url: string, pdfUrls: string[]}>` {#handlemedia}
+### handleMedia
+
+`(string) => Promise<{url: string, pdfUrls: string[]}>`
 
 Se encarga de guardar imágenes o pdfs de whatsapp en S3. Un mensaje de whatsapp con media de cualquier tipo envía un id. Este ID se envía al endpoint de media de meta. Este endpoint retorna un url. Este url se usa para descargar el archivo en la forma de un string codificado. Si el archivo original es un pdf, se convierte en un arreglo de imágenes en la forma de strings codificados. Luego todos los strings codificados se suben a S3 y la función retorna todos los urls de S3. Solo el url del archivo original se guarda en el chat  
 Funciones llamadas desde handleMeda:
@@ -93,35 +97,45 @@ Funciones llamadas desde handleMeda:
 
 ## mongo.ts
 
-### `saveMessage: (IncomingMessage, string) => Promise<SaveMessageResponse()>`{#savemessage}
+### saveMessage
+
+`(IncomingMessage, string) => Promise<SaveMessageResponse()>`
 
 Revisa si existe una conversación con el id de whatsapp del usuario. Si no existe, crea un chat nuevo. Si existe, agrega el mensaje al chat. Retorna un objeto de tipo [SaveMessageResponse](#SaveMessageResponse). Para ver cómo se guarda el mensaje, ver el tipo [Conversation](#conversation)  
 Funciones llamadas desde saveMessage
 
 - [getMongoClientInstance](#getmongoclientinstance)
 
-### `saveAssistantMessage: (string, string, boolean) => Promise<void>` {#saveassistantmessage}
+### saveAssistantMessage
+
+`(string, string, boolean) => Promise<void>`
 
 Agrega el mensaje del asistente o agente humano al chat.  
 Funciones llamadas desde saveAssistantMessage
 
 - [getMongoClientInstance](#getmongoclientinstance)
 
-### `updateThreadId: (string, string) => Promise<void>` {#updatethreadid}
+### updateThreadId
+
+`(string, string) => Promise<void>`
 
 Guarda el threadId en el chat  
 Funciones llamadas desde updateThreadId:
 
 - [getMongoClientInstance](#getmongoclientinstance)
 
-### `saveUser: (User) => Promise<void>` {#saveuser}
+### saveUser
+
+`(User) => Promise<void>`
 
 Demo KYC: Guarda la [data del usuario](#user)
 Funciones llamadas desde saveUser:
 
 - [getMongoClientInstance](#getmongoclientinstance)
 
-### `handleOutgoingMessages: () => Promise<OutgoingChat[]>`{#handleoutgoingmessages}
+### handleOutgoingMessages
+
+`() => Promise<OutgoingChat[]>`
 
 Retorna [todos los chats](#outgoingchat)
 Funciones llamadas desde handleOutgoingMessages:
@@ -129,7 +143,9 @@ Funciones llamadas desde handleOutgoingMessages:
 - [getMongoClientInstance](#getmongoclientinstance)
 - [formatChatData](#formatchatdata)
 
-### `handleAgentMessage: (AgentMessage) => Promise<void>` {#handleagentmessage}
+### handleAgentMessage
+
+`(AgentMessage) => Promise<void>`
 
 Guarda el [mensaje del asistente](#agentmessage) en mongodb y envía el mensaje por whatsapp  
 Funciones llamadas desde handleAgentMessage:
@@ -137,7 +153,9 @@ Funciones llamadas desde handleAgentMessage:
 - [saveAssistantMessage](#saveassistantmessage)
 - [sendWhatsappMessage](#sendwhatsappmessage)
 
-### `handleTakeover: (TakeoverRequest) => Promise<void>` {#handletakeover}
+### handleTakeover
+
+`(TakeoverRequest) => Promise<void>`
 
 [Actualiza el valor de takeover](#TakeoverRequest) en mongodb. Si el valor nuevo es falso, agrega todos los mensajes desde que se activó takeover al thread, los manda al asistente, guarda la respuesta y envía la respuesta al whatsapp del usuario  
 Funciones llamadas desde handleTakeover:
@@ -150,14 +168,18 @@ Funciones llamadas desde handleTakeover:
 - [saveAssistantMessage](#saveassistantmessage)
 - [sendWhatsappMessage](#sendwhatsappmessage)
 
-### `getLatestStagedMessage: (string) => Promise<ConversationMessage>` {#getlateststagedmessage}
+### getLatestStagedMessage
+
+`(string) => Promise<ConversationMessage>`
 
 Retorna el [mensaje más reciente](#conversationmessage) en la conversación  
 Funciones llamadas desde getLatestStagedMessage:
 
 - [getMongoClientInstance](#getmongoclientinstance)
 
-### `handleClose: (CloseRequest) => Promise <void>` {#handleclose}
+### handleClose
+
+`(CloseRequest) => Promise <void>`
 
 Elimina el threadId del chat [con el userID indicado.](#closerequest)  
 Funciones llamadas desde handleClose:
@@ -166,81 +188,118 @@ Funciones llamadas desde handleClose:
 
 ## axios.ts
 
-### `getMediaUrl: (string) => Promise<{url: string, mime_type: string}>` {#getmediaurl}
+### getMediaUrl
+
+`(string) => Promise<{url: string, mime_type: string}>`
 
 Retorna el url de descarga y el tipo de un archivo subido por whatsapp
 
-### `downloadMedia: (string) => Promise<ArrayBuffer>` {#downloadmedia}
+### downloadMedia
+
+`(string) => Promise<ArrayBuffer>` {#downloadmedia}
 
 Retorna el archivo original
 
 ## assistant.ts
 
-### `stageAssistantPayload: (string, Thread, string, string[]) => Promise<void>` {#stageassistantpayload}
+### stageAssistantPayload
+
+`(string, Thread, string, string[]) => Promise<void>`
 
 Agrega un mensaje al thread. Si el mensaje contiene una imagen, agrega el url de la imagen al mensaje. Si el mensaje contiene un pdf, agrega el url de la imagen de cada página al mensaje. La API de openai no tiene soporte de archivos, pero puede recibir imágenes a través de un url. Para mandar pdfs, se convierten en un arreglo de imágenes
 
-### `runAssistant: (string) => Promise<string>` {#runassistant}
+### runAssistant
+
+`(string) => Promise<string>`
 
 Manda todos los mensajes agregados en el thread al asistente. Retorna la respuesta del asistente.
 
-### `getThread: (string) => Promise<Thread>` {#getthread}
+### getThread
+
+`(string) => Promise<Thread>`
 
 Retorna el thread con el id proporcionado. Si no existe crea uno nuevo y lo retorna
 
-### `stageMultipleMessages: (string, ConversationMessage[]) => Promise<void>` {#stagemultiplemessages}
+### stageMultipleMessages
+
+`(string, ConversationMessage[]) => Promise<void>`
 
 Agrega una [lista de mensajes](#conversationmessage) al thread. Los mensajes del agente humano se agregan como si fueron enviados por el asistente IA
+Funciones llamadas desde stageMultipleMessages:
+
+- [getPdfImageUrls](#getpdfimageurls)
 
 # Utils
 
 ## mongodb.ts
 
-### `startMongoClient: () => Promise<void>`
+### startMongoClient
+
+`() => Promise<void>`
 
 Conecta la instancia del cliente de mongo a la base de datos
 
-### `getMongoClientInstance: () => Promise<MongoClient> `{#getmongoclientinstance}
+### getMongoClientInstance
+
+`() => Promise<MongoClient> `
 
 Retorna la instancia del cliente de mongo
 
-### `stopMongoClient: () => Promise<void>`
+### stopMongoClient
+
+`() => Promise<void>`
 
 Desconecta la instancia del cliente de mongo de la base de datos
 
-### `formatChatData: (FindCursor<WithId<Conversation>>) => Promise<OutgoingChat[]>` {#formatchatdata}
+### formatChatData
+
+`(FindCursor<WithId<Conversation>>) => Promise<OutgoingChat[]>`
 
 Convierte [los chats de mongodb](#conversation) a un [formato para mostrar en el dashboard](#outgoingchat)
 
 ## whatsapp.ts
 
-### `sendWhatsappMessage: (string, string) => Promise<AxiosResponse<any, any>>` {#sendwhatsappmessage}
+### sendWhatsappMessage
+
+`(string, string) => Promise<AxiosResponse<any, any>>`
 
 Envía un mensaje al whatsapp del usuario. La respuesta de axios pasa por el webhook de whatsapp, lo que significa que conecta con el endpoint POST \- “/webhooks”. Para evitar problemas con recurrencia o mensajes repetidos, el endpoint responde “OK” inmediatamente si el mensaje viene del asistente IA o agente humano
 
 ## assistant.ts
 
-### `parseFinalMessage: (string) => User | null` {#parsefinalmessage}
+### parseFinalMessage
+
+`(string) => User | null`
 
 Busca palabras clave en el mensaje del asistente para determinar si este es el último mensaje del flujo. Si es el ultimo, crea un [objeto del usuario](#user)
 
 ## aws.ts
 
-### `uploadMedia: ({Key: string, ContentType: string, Body: S3.PutObjectCommandInput.Body}) => Promise<string>` {#uploadmedia}
+### uploadMedia
+
+`({Key: string, ContentType: string, Body: S3.PutObjectCommandInput.Body}) => Promise<string>`
 
 Guarda el archivo en S3 y retorna el url de AWS
 
-## pdf-to-image.ts
+## pdf.ts
 
-### `pdfToImage: (string) => Promise<string[]>` {#pdftoimage}
+### pdfToImage
 
-Convierte el string codificado base64 de un pdf y retorna un arreglo de string codificado base64 de pngs
+`(ArrayBuffer) => Promise<string[]>`
+
+Recibe el ArrayBuffer de un pdf lo convierte a imágenes y retorna una lista de ArrayBuffer de imágenes
+
+### getPdfImageUrls
+
+`(string) => Promise<string[]>`
+
+Recibe el url de un pdf y obtiene los url de las imágenes que se generaron del pdf
 
 # Types
 
 ## main.d.ts
 
-### IncomingMessage {#incomingmessage}
+### IncomingMessage
 
 | Nombre    | Tipo           | Descripción                                   |
 | :-------- | :------------- | :-------------------------------------------- |
@@ -251,14 +310,14 @@ Convierte el string codificado base64 de un pdf y retorna un arreglo de string c
 | content   | string         | Contenido de texto del mensaje                |
 | mediaId   | string \| null | ID de la imagen o archivo                     |
 
-### SaveMessageResponse {#savemessageresponse}
+### SaveMessageResponse
 
 | Nombre   | Tipo    | Descripción                          |
 | :------- | :------ | :----------------------------------- |
 | takeover | boolean | El valor actual de takeover del chat |
 | threadId | string  | ID del thread asignado al chat       |
 
-### AgentMessage {#agentmessage}
+### AgentMessage
 
 | Nombre  | Tipo   | Descripción                       |
 | :------ | :----- | :-------------------------------- |
@@ -273,7 +332,7 @@ Convierte el string codificado base64 de un pdf y retorna un arreglo de string c
 | takeover | boolean | Valor nuevo de takeover |
 | userId   | string  | Whatsapp ID del usuario |
 
-### CloseRequest {#closerequest}
+### CloseRequest
 
 | Nombre | Tipo   | Descripción             |
 | :----- | :----- | :---------------------- |
@@ -281,7 +340,7 @@ Convierte el string codificado base64 de un pdf y retorna un arreglo de string c
 
 ## schemas.d.ts
 
-### Conversation {#conversation}
+### Conversation
 
 | Nombre              | Tipo                                           | Descripción                               |
 | :------------------ | :--------------------------------------------- | :---------------------------------------- |
@@ -296,7 +355,7 @@ Convierte el string codificado base64 de un pdf y retorna un arreglo de string c
 
 \*assigned_agent_id no se usa en la implementación actual
 
-### ConversationMessage {#conversationmessage}
+### ConversationMessage
 
 | Nombre    | Tipo                             | Descripción                                  |
 | :-------- | :------------------------------- | :------------------------------------------- |
@@ -306,7 +365,7 @@ Convierte el string codificado base64 de un pdf y retorna un arreglo de string c
 | media     | string \| undefined              | URL de AWS con la imagen o documento         |
 | takeover  | boolean                          | Valor de takeover cuando se envió el mensaje |
 
-### User {#user}
+### User
 
 | Nombre | Tipo   | Descripción     |
 | :----- | :----- | :-------------- |
@@ -315,7 +374,7 @@ Convierte el string codificado base64 de un pdf y retorna un arreglo de string c
 | phone  | string | Teléfono        |
 | email  | string | Correo          |
 
-### OutgoingChat {#outgoingchat}
+### OutgoingChat
 
 | Nombre      | Tipo                                           | Descripción                               |
 | :---------- | :--------------------------------------------- | :---------------------------------------- |
