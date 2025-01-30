@@ -3,18 +3,18 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
+import cors from "cors";
 import mainRouter from "./routes/main";
-import chatbotRouter from "./routes/chatbot";
-import testingRouter from "./routes/testing";
+import dashboardRouter from "./routes/dashboard";
 import bodyParser from "body-parser";
 import { startMongoClient, stopMongoClient } from "./utils/mongodb";
 
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use("/webhooks", bodyParser.json(), mainRouter);
-app.use("/chatbot", bodyParser.json(), chatbotRouter);
-app.use("/testing", bodyParser.json(), testingRouter);
+app.use("/dashboard", bodyParser.json(), dashboardRouter);
 
 const server = app.listen(PORT, async () => {
   try {

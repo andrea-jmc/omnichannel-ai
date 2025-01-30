@@ -1,5 +1,3 @@
-import { ObjectId } from "mongodb";
-
 export interface Conversation {
   chat_id: string;
   thread_id: string;
@@ -15,6 +13,7 @@ export interface ConversationMessage {
   timestamp: string;
   author: "user" | "assistant" | "agent";
   content: string;
+  media?: string;
   takeover: boolean;
 }
 
@@ -23,4 +22,12 @@ export interface User {
   id: string;
   phone: string;
   email: string;
+}
+
+export interface OutgoingChat {
+  chat_id: string;
+  userId: string;
+  takeover: boolean;
+  messages: ConversationMessage[];
+  lastMessage: string;
 }
