@@ -4,21 +4,23 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-import mainRouter from "./routes/main";
-import dashboardRouter from "./routes/dashboard";
+// import mainRouter from "./routes/main";
+// import dashboardRouter from "./routes/dashboard";
+import chatbotRouter from "./routes/chatbot";
 import bodyParser from "body-parser";
-import { startMongoClient, stopMongoClient } from "./utils/mongodb";
+// import { startMongoClient, stopMongoClient } from "./utils/mongodb";
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
-app.use("/webhooks", bodyParser.json(), mainRouter);
-app.use("/dashboard", bodyParser.json(), dashboardRouter);
+// app.use("/webhooks", bodyParser.json(), mainRouter);
+// app.use("/dashboard", bodyParser.json(), dashboardRouter);
+app.use("/chatbot", bodyParser.json(), chatbotRouter);
 
 const server = app.listen(PORT, async () => {
   try {
-    await startMongoClient();
+    // await startMongoClient();
     console.log(`Running on port ${PORT}`);
   } catch (error) {
     console.error(error);
@@ -27,14 +29,14 @@ const server = app.listen(PORT, async () => {
 
 process.on("SIGTERM", () => {
   server.close(() => {
-    stopMongoClient();
+    // stopMongoClient();
     process.exit(0);
   });
 });
 
 process.on("SIGINT", () => {
   server.close(() => {
-    stopMongoClient();
+    // stopMongoClient();
     process.exit(0);
   });
 });
