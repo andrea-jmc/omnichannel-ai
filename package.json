@@ -30,7 +30,7 @@
     "nodemailer": "^6.9.16",
     "openai": "^4.77.3",
     "pdfjs-dist": "^4.10.38",
-    "puppeteer": "^24.1.1"
+    "puppeteer-core": "^24.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",

@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import pdfjs from "pdfjs-dist";
 import { PdfTemplate } from "./template";
 
