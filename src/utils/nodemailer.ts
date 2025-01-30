@@ -1,7 +1,8 @@
 import nodemailer from "nodemailer";
 import { deleteUserData } from "./node-json-db";
+import { UserDataObject } from "../types/node-json-db";
 
-const user = process.env.NODEMAILER_USER;
+const emaiUser = process.env.NODEMAILER_USER;
 const pass = process.env.NODEMAILER_PASSWORD;
 const destination = process.env.NODEMAILER_DESTINATION;
 
@@ -10,17 +11,44 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user,
+    user: emaiUser,
     pass,
   },
 });
 
-export const sendMail = (text: string, id: string) => {
+export const sendMail = (
+  user: UserDataObject,
+  id: string,
+  pdf: Uint8Array<ArrayBufferLike>
+) => {
+  const text = `Estos son los datos para el reclamo de ${user.paciente}.
+
+  Información del seguro
+  Nombre del titular: ${user.titular}
+  Número de póliza: ${user.poliza}
+  Número de certificado: ${user.certificado}
+  Número de identidad: ${user.dni}
+  Nombre del paciente: ${user.paciente}
+
+  Información bancaria
+  Cuenta: ${user.cuenta}
+  Banco: ${user.banco}
+  Moneda: ${user.tipo_cuenta}
+
+  Se adjuntan los documentos enviados con el reclamo`;
+
   const mailOptions = {
-    from: user,
+    from: emaiUser,
     to: destination,
-    subject: "Este correo salió de mi endpoint",
+    subject: "Prueba de Reclamo " + user.paciente,
     text,
+    attachments: [
+      {
+        filename: `Documentos ${user.paciente}.pdf`,
+        content: Buffer.from(pdf),
+        contentType: "application/pdf",
+      },
+    ],
   };
 
   transporter.sendMail(mailOptions, (error, info) => {

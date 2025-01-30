@@ -1,25 +1,29 @@
 export interface UserDataObject {
   id: string;
-  name: string;
-  email: string;
-  account: string;
-  form: string[];
-  recibosConsultas: string[];
-  recetas: string[];
-  facturasFarmacia: string[];
-  ordenesLab: string[];
-  facturasLab: string[];
-  resultados: string[];
+  dni: string;
+  titular: string;
+  poliza: string;
+  certificado: string;
+  paciente: string;
+  cuenta: string;
+  banco: string;
+  tipo_cuenta: "LPS" | "USD";
+  documents: string[];
 }
 
-export interface CreateUserRequest {
+export interface SaveUserRequest {
   id: string;
-  name: string;
-  email: string;
-  account: string;
+  dni: string;
+  titular: string;
+  poliza: string;
+  certificado: string;
+  paciente: string;
+  cuenta: string;
+  banco: string;
+  tipo_cuenta: "LPS" | "USD";
 }
 
 export interface AddDataRequest {
   id: string;
-  value: string;
+  document: string;
 }

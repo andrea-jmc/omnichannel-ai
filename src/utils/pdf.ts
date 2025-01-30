@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import pdfjs from "pdfjs-dist";
+import { PdfTemplate } from "./template";
 
 export const pdfToImgage = async (encodedPdf: ArrayBuffer) => {
   const pdfAsArray = new Uint8Array(encodedPdf);
@@ -60,4 +61,25 @@ export const getPdfImageUrls = async (originalUrl: string) => {
   }
 
   return imageUrls;
+};
+
+export const imagesToPdf = async (images: string[]) => {
+  const browser = await puppeteer.launch();
+
+  const page = await browser.newPage();
+
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
+  );
+  await page.setViewport({ width: 1200, height: 15000 });
+  await page.setContent(PdfTemplate(images), {
+    timeout: 0,
+    waitUntil: ["load", "domcontentloaded", "networkidle0"],
+  });
+
+  const doc = await page.pdf();
+
+  await page.close();
+  await browser.close();
+  return doc;
 };
