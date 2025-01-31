@@ -29,5 +29,7 @@ COPY . .
 # Expose the application port
 EXPOSE 3000
 
+RUN npm run build
+
 # Start the application
-CMD ["node", "index.ts"]
+CMD ["node", "dist/index.js"]

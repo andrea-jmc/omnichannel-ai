@@ -9,8 +9,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --build & docker build -t onmichannel-ai",
-    "start": "docker run -p 3000:3000 my-puppeteer-app & node --experimental-strip-types ./dist/index.js",
+    "build": "tsc --build",
+    "start": "node --experimental-strip-types ./dist/index.js",
     "dev": "nodemon ./src/index.ts"
   },
   "keywords": [],
