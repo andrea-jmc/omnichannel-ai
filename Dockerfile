@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -yq libgconf-2-4 \
 FROM ghcr.io/puppeteer/puppeteer:latest
       
 # Set the working directory
-WORKDIR ./
+WORKDIR /app
 
 # Copy package.json and package-lock.json files to the working directory
 COPY package*.json ./
