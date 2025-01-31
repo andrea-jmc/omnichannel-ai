@@ -18,7 +18,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm install
+RUN sudo npm install
 
 EXPOSE 3000
 
