@@ -14,22 +14,13 @@ RUN apt-get update && apt-get install -yq libgconf-2-4 \
 # Switch to the official Puppeteer image
 FROM ghcr.io/puppeteer/puppeteer:latest
       
-# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json files to the working directory
-COPY package*.json ./
-
-# Install application dependencies
-RUN npm install
-
-# Copy the application source
 COPY . .
 
-# Expose the application port
+RUN npm install
+
 EXPOSE 3000
 
-RUN npm run build
-
-# Start the application
-CMD ["node", "dist/index.js"]
+CMD ["npm", "build"]
+CMD ["npm", "start"]
