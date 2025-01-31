@@ -18,7 +18,13 @@ WORKDIR /app
 
 COPY . .
 
-RUN sudo npm install
+RUN chown -R node:node /app
+
+USER node
+
+RUN npm install
+
+COPY --chown=node:node . .
 
 EXPOSE 3000
 
