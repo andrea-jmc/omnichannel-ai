@@ -44,17 +44,13 @@ FROM ghcr.io/puppeteer/puppeteer:latest
       
 WORKDIR /app
 
-RUN groupadd -r appgroup && useradd -r -g appgroup appuser
-
 COPY package*.json ./
 
 RUN npm install
 
-RUN chown -R appuser:appgroup /app
+COPY . .
 
-USER appuser
-
-COPY --chown=appuser:appgroup . .
+USER node
 
 EXPOSE 3000
 
