@@ -9,8 +9,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --build",
-    "start": "node --experimental-strip-types ./dist/index.js",
+    "build": "tsc --build & docker build -t onmichannel-ai",
+    "start": "docker run -p 3000:3000 my-puppeteer-app & node --experimental-strip-types ./dist/index.js",
     "dev": "nodemon ./src/index.ts"
   },
   "keywords": [],
@@ -30,7 +30,7 @@
     "nodemailer": "^6.9.16",
     "openai": "^4.77.3",
     "pdfjs-dist": "^4.10.38",
-    "puppeteer-core": "^24.1.1"
+    "puppeteer": "^24.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",

@@ -1,4 +1,5 @@
 // import { Router } from "express";
+// import { testDocker } from "../utils/pdf";
 // import { deleteThread } from "../handlers/assistant";
 // import {
 //   addToArray,
@@ -15,8 +16,8 @@
 //   res.send("OK");
 // });
 
-// router.post("/info-usuario", async (req, res) => {
-//   await createUser(req.body);
+// router.post("/", async (req, res) => {
+//   await testDocker();
 //   res.send("OK");
 // });
 

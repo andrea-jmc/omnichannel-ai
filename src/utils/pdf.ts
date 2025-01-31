@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 import pdfjs from "pdfjs-dist";
 import { PdfTemplate } from "./template";
 
@@ -65,8 +65,8 @@ export const getPdfImageUrls = async (originalUrl: string) => {
 
 export const imagesToPdf = async (images: string[]) => {
   const browser = await puppeteer.launch({
-    executablePath: "/usr/bin/chromium-browser",
     headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   const page = await browser.newPage();
