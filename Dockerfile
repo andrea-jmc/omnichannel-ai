@@ -1,4 +1,4 @@
-FROM ovarela1/node18.19-alpine3.19wcwa:latest
+FROM node:22
 
 # Install necessary dependencies for running Puppeteer
 RUN apt-get update && apt-get install -y \
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -yq libgconf-2-4 \
 FROM ghcr.io/puppeteer/puppeteer:latest
       
 # Set the working directory
-WORKDIR /dist
+WORKDIR /src
 
 # Copy package.json and package-lock.json files to the working directory
 COPY package*.json ./
@@ -30,4 +30,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the application
-CMD ["node", "index.js"]
+CMD ["node", "index.ts"]
